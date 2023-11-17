@@ -69,8 +69,6 @@ pub async fn metrics(
         }
     }
 
-    // rate_metrics.reverse();
-
     Ok(Json(rate_metrics))
 }
 
