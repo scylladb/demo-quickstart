@@ -7,7 +7,7 @@ services:
     volumes:
       - scylla_data:/var/lib/scylla/data
     ports:
-      - "9042:9042"
+      - 9042:9042
     restart: always
 
   demo:

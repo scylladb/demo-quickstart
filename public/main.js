@@ -3,7 +3,7 @@ let devicesData = [];
 let activeTabIndex = 0;
 const gradients = {
     opsPerSec: ['#00144B', '#00BFFF'],
-    latencyP99Ms: ['#00BFFF'],
+    latencyMeanMs: ['#00BFFF'],
 };
 window.onload = async () => {
     mdc.autoInit();
@@ -18,9 +18,9 @@ window.onload = async () => {
                 chartInstances.opsPerSecChart.resize();
                 chartInstances.opsPerSecChart.setOption(createBarChartOption(metricsData.readsPerSec, metricsData.writesPerSec, gradients.opsPerSec), true);
             }
-            if (chartInstances.latencyP99MsChart) {
-                chartInstances.latencyP99MsChart.resize();
-                chartInstances.latencyP99MsChart.setOption(createLineChartOption(metricsData.latencyP99Ms, gradients.latencyP99Ms), true);
+            if (chartInstances.latencyMeanMsChart) {
+                chartInstances.latencyMeanMsChart.resize();
+                chartInstances.latencyMeanMsChart.setOption(createLineChartOption(metricsData.latencyMeanMs, gradients.latencyMeanMs), true);
             }
         }
     });
@@ -33,7 +33,7 @@ window.onload = async () => {
 
 window.addEventListener('resize', function () {
     if (chartInstances.opsPerSecChart) chartInstances.opsPerSecChart.resize();
-    if (chartInstances.latencyP99MsChart) chartInstances.latencyP99MsChart.resize();
+    if (chartInstances.latencyMeanMsChart) chartInstances.latencyMeanMsChart.resize();
     if (chartInstances.worldGraphChart) chartInstances.worldGraphChart.resize();
 });
 
@@ -62,7 +62,7 @@ async function fetchAndPrepareData() {
             if (timestamp > lastTimestamp) {
                 metricsData.readsPerSec.push([timestamp, item.reads_per_second]);
                 metricsData.writesPerSec.push([timestamp, item.writes_per_second]);
-                metricsData.latencyP99Ms.push([timestamp, item.latency_p99_ms]);
+                metricsData.latencyMeanMs.push([timestamp, item.latency_mean_ms]);
 
                 totalReads += item.total_reads;
                 totalWrites += item.total_writes;
@@ -71,14 +71,14 @@ async function fetchAndPrepareData() {
                 if (metricsData.readsPerSec.length > 300) {
                     metricsData.readsPerSec.shift();
                     metricsData.writesPerSec.shift();
-                    metricsData.latencyP99Ms.shift();
+                    metricsData.latencyMeanMs.shift();
                 }
 
-                ops_per_second = item.reads_per_second + item.writes_per_second
+                ops_per_second = item.reads_per_second + item.writes_per_second;
                 document.getElementById('opsPerSec').innerText = ops_per_second.toLocaleString('en', {maximumFractionDigits: 0}) + " ops/sec";
                 document.getElementById('readsPerSec').innerText = item.reads_per_second.toLocaleString('en', {maximumFractionDigits: 0}) + " reads/sec";
                 document.getElementById('writesPerSec').innerText = item.writes_per_second.toLocaleString('en', {maximumFractionDigits: 0}) + " writes/sec";
-                document.getElementById('latencyP99Ms').innerText = item.latency_p99_ms.toLocaleString('en', {maximumFractionDigits: 0}) + " ms";
+                document.getElementById('latencyMeanMs').innerText = item.latency_mean_ms.toLocaleString('en', {maximumFractionDigits: 0}) + " ms";
 
                 document.getElementById('totalOps').innerText = totalReads.toLocaleString('en', {maximumFractionDigits: 0}) + " total ops";
                 document.getElementById('totalReads').innerText = totalReads.toLocaleString('en', {maximumFractionDigits: 0}) + " total reads";
@@ -94,11 +94,11 @@ async function fetchAndPrepareData() {
 
 function initCharts() {
     const opsPerSecChart = echarts.init(document.getElementById('opsPerSecChart'));
-    const latencyP99MsChart = echarts.init(document.getElementById('latencyP99MsChart'));
+    const latencyMeanMsChart = echarts.init(document.getElementById('latencyMeanMsChart'));
     const worldGraphChart = echarts.init(document.getElementById('worldGraphChart'));
 
     return {
-        opsPerSecChart, latencyP99MsChart, worldGraphChart
+        opsPerSecChart, latencyMeanMsChart, worldGraphChart
     };
 }
 
@@ -112,7 +112,7 @@ async function updateCharts(chartInstances) {
 
     if (activeTabIndex === 1) {
         chartInstances.opsPerSecChart.setOption(createBarChartOption(metricsData.readsPerSec, metricsData.writesPerSec, gradients.readsPerSec), true);
-        chartInstances.latencyP99MsChart.setOption(createLineChartOption(metricsData.latencyP99Ms, gradients.latencyP99Ms), true);
+        chartInstances.latencyMeanMsChart.setOption(createLineChartOption(metricsData.latencyMeanMs, gradients.latencyMeanMs), true);
     }
 }
 
