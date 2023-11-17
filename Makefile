@@ -16,10 +16,10 @@ push:
 	docker-compose push
 
 up:
-	docker-compose -f docker-compose.yml up --detach --remove-orphans
+	docker-compose up --detach --force-recreate scylla demo
 
 down:
-	docker-compose -f docker-compose.yml down --remove-orphans
+	docker-compose down --remove-orphans
 
 run:
 	cargo run -p scylladb-quick-demo-rs 20 80
