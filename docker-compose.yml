@@ -10,7 +10,7 @@ services:
       - "9042:9042"
     restart: always
 
-  quickstart:
+  demo:
     build: .
     image: scylladb/demo
     ports:
