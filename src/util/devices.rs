@@ -13,7 +13,6 @@ use tracing::{debug, error};
 use uuid::Uuid;
 use crate::util::coords;
 
-
 pub async fn simulator(
     session: Arc<Session>,
     read_ratio: u8,
