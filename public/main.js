@@ -122,7 +122,7 @@ function createWorldOption() {
         return [[device.lat, device.lng], [nextDevice.lat, nextDevice.lng]];
     });
 
-    const opt =  {
+    return {
         geo3D: {
             map: 'world',
             silent: true,
@@ -166,8 +166,6 @@ function createWorldOption() {
             }
         ]
     };
-
-    return opt;
 }
 
 function createBarChartOption(readsData, writesData, gradientColors) {
