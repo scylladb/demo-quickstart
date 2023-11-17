@@ -20,6 +20,8 @@ measuring data from millions of unique devices:
 
 The demo application will now be running on port 8000. You can access the application by visiting http://localhost:8000/index.html.
 
+![](demo.gif)
+
 Note: the demo will simulate high load with simulated reads and writes, so you can expect to see the demo app 
 consuming a lot of CPU. You can stop the demo at any time with:
 
