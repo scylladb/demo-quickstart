@@ -15,5 +15,6 @@ RUN cargo build --release --bin scylladb-quick-demo-rs
 FROM debian:bookworm-slim AS runtime
 COPY --from=builder /app/target/release/scylladb-quick-demo-rs /app/scylladb-quick-demo-rs
 COPY --from=builder /app/public /app/public
+ENV ROCKET_ADDRESS=0.0.0.0
 
 CMD ["/app/scylladb-quick-demo-rs"]
