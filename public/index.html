@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ScyllaDB Quickstart Demo</title>
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body class="mdc-typography">
+
+<div class="mdc-tab-bar" role="tablist">
+    <div class="mdc-tab-scroller">
+        <div class="mdc-tab-scroller__scroll-area">
+            <div class="mdc-tab-scroller__scroll-content">
+                <button class="mdc-tab mdc-tab--active" role="tab" aria-selected="true" tabindex="0">
+                    <span class="mdc-tab__content">
+                        <span class="mdc-tab__text-label">Live DDoS Map</span>
+                    </span>
+                    <span class="mdc-tab-indicator mdc-tab-indicator--active">
+                        <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                    </span>
+                    <span class="mdc-tab__ripple"></span>
+                </button>
+
+                <button class="mdc-tab" role="tab" aria-selected="false" tabindex="-1">
+                    <span class="mdc-tab__content">
+                        <span class="mdc-tab__text-label">ScyllaDB Performance Metrics</span>
+                    </span>
+                    <span class="mdc-tab-indicator">
+                        <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                    </span>
+                    <span class="mdc-tab__ripple"></span>
+
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="panel-container">
+    <div id="worldGraph-panel" class="panel active">
+        <div class="mdc-layout-grid__inner">
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+                <div class="mdc-card">
+                    <div id="worldGraphChart" class="mdc-card__media mdc-card__media--16-9 triple-height-chart"></div>
+                    <div class="mdc-card__content">
+                        <h2 id="worldGraphChartTitle" class="mdc-typography--headline6"></h2>
+                        <h3 class="mdc-typography--headline6">Live DDoS Map</h3>
+                        <p class="mdc-typography--body2">
+                            This application showcases the power of ScyllaDB in handling and analyzing high-intensity cyber activities.
+                            It's specifically designed to simulate tracking of DDoS (Distributed Denial of Service) attacks,
+                            demonstrating ScyllaDB's capability to efficiently manage thousands of operations every second.
+                            The core feature involves recording a large volume of simulated DDoS events into ScyllaDB,
+                            which can then be analyzed and visualized through real-time data retrieval from the same database.
+                        </p>
+                        <p class="mdc-typography--body2">
+                            Take a look at the various ScyllaDB performance metrics, noting the high performance and predictable low latency
+                            achievable with just one node. The performance you get from one node will scale linearly as you add more nodes
+                            with the same predictable results.
+                        </p>
+                        <span id="opsPerSec" class="mdc-typography--headline6"></span>
+                        <span id="totalOps" class="mdc-typography--body2"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="monitoring-panel" class="panel">
+        <div class="mdc-layout-grid">
+            <div class="mdc-layout-grid__inner">
+                <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+                    <div class="mdc-card">
+                        <div id="opsPerSecChart" class="mdc-card__media mdc-card__media--16-9"></div>
+                        <div class="mdc-card__content">
+                            <span id="readsPerSec" class="mdc-typography--headline6"></span>
+                            <span id="totalReads" class="mdc-typography--body2">Reads</span>
+                            <span id="writesPerSec" class="mdc-typography--headline6"></span>
+                            <span id="totalWrites" class="mdc-typography--body2">Writes</span>
+                            <p class="mdc-typography--body2">Throughput Total (ops/sec)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+                    <div class="mdc-card">
+                        <div id="latencyP99MsChart" class="mdc-card__media mdc-card__media--16-9"></div>
+                        <div class="mdc-card__content">
+                            <h2 id="latencyP99Ms" class="mdc-typography--headline6"></h2>
+                            <p class="mdc-typography--body2">Latency P99 (ms)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>

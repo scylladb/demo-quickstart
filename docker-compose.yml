@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  scylla:
+    image: scylladb/scylla
+    container_name: scylla
+    volumes:
+      - scylla_data:/var/lib/scylla/data
+    ports:
+      - "9042:9042"
+    restart: always
+
+  quickstart:
+    build: .
+    image: timkoopmans/scylladb-quickstart
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_URL=scylla:9042
+      - ROCKET_ADDRESS=0.0.0.0
+
+volumes:
+  scylla_data:

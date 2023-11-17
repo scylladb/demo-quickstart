@@ -1,0 +1,75 @@
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    font-family: "GT America Mono", monospace;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+:root {
+    --mdc-theme-primary: #0077b6;
+    --mdc-theme-secondary: #00BFFF;
+}
+
+.mdc-layout-grid {
+    background-color: #fff;
+}
+
+.mdc-layout-grid__inner {
+    margin: 0 auto;
+    width: 90%;
+}
+
+.mdc-card {
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.mdc-card__media {
+    overflow: visible;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background-color: #fff;
+    height: 250px;
+}
+
+.mdc-card__content p {
+
+}
+
+.mdc-typography--headline6 {
+    padding: 0 16px 0 16px;  /* Top, Right, Bottom, Left */
+    color: #00144b;
+}
+
+.mdc-typography--body2 {
+    font-size: 14px;
+    font-weight: 400;
+    color: #234294;
+    padding: 0 16px 0 16px;  /* Top, Right, Bottom, Left */
+}
+
+.double-height-chart {
+    height: calc(2 * 16.9rem);
+}
+
+.triple-height-chart {
+    height: calc(3 * 16.9rem);
+}
+
+.panel {
+    display: none;
+}
+
+.panel.active {
+    display: block;
+}
+
+.scrollable-table {
+    max-height: 320px;
+    overflow-y: auto;
+    display: block;
+}
