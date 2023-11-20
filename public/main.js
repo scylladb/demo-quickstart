@@ -112,7 +112,9 @@ async function updateCharts(chartInstances) {
 
     if (activeTabIndex === 1) {
         chartInstances.opsPerSecChart.setOption(createBarChartOption(metricsData.readsPerSec, metricsData.writesPerSec, gradients.readsPerSec), true);
+        chartInstances.opsPerSecChart.resize();
         chartInstances.latencyMeanMsChart.setOption(createLineChartOption(metricsData.latencyMeanMs, gradients.latencyMeanMs), true);
+        chartInstances.latencyMeanMsChart.resize();
     }
 }
 
