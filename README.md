@@ -16,7 +16,7 @@ measuring data from millions of unique devices:
     docker run --rm --link node1:node1 \
         --publish 8000:8000 \
         --env DATABASE_URL=node1:9042 \
-        --name demo scylladb/demo
+        --name demo scylladb/demo-quickstart
 
 The demo application will now be running on port 8000. You can access the application by visiting http://localhost:8000/index.html.
 

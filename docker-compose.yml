@@ -12,7 +12,7 @@ services:
 
   demo:
     build: .
-    image: scylladb/demo
+    image: scylladb/demo-quickstart
     ports:
       - 8000:8000
     environment:
