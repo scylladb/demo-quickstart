@@ -111,7 +111,7 @@ async function updateCharts(chartInstances) {
     }
 
     if (activeTabIndex === 1) {
-        chartInstances.opsPerSecChart.setOption(createBarChartOption(metricsData.readsPerSec, metricsData.writesPerSec, gradients.readsPerSec), true);
+        chartInstances.opsPerSecChart.setOption(createBarChartOption(metricsData.readsPerSec, metricsData.writesPerSec, gradients.opsPerSec), true);
         chartInstances.opsPerSecChart.resize();
         chartInstances.latencyMeanMsChart.setOption(createLineChartOption(metricsData.latencyMeanMs, gradients.latencyMeanMs), true);
         chartInstances.latencyMeanMsChart.resize();
@@ -170,7 +170,7 @@ function createWorldOption() {
     };
 }
 
-function createBarChartOption(readsData, writesData, gradientColors) {
+function createBarChartOption(readsData, writesData, gradients) {
     // Combine reads and writes data
     const combinedData = combineDataForStackedBar(readsData, writesData);
 
@@ -188,7 +188,7 @@ function createBarChartOption(readsData, writesData, gradientColors) {
                 type: 'bar',
                 stack: 'total',
                 itemStyle: {
-                    color: gradientColors[0]
+                    color: gradients[0]
                 }
             },
             {
@@ -197,7 +197,7 @@ function createBarChartOption(readsData, writesData, gradientColors) {
                 type: 'bar',
                 stack: 'total',
                 itemStyle: {
-                    color: gradientColors[1]
+                    color: gradients[1]
                 }
             }
         ]
