@@ -236,6 +236,7 @@ function createLineChartOption(data, gradientColors) {
         },
         yAxis: { type: 'value' },
         series: [{
+            name: 'ms',
             data: data,
             type: 'line',
             step: 'start',
