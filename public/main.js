@@ -80,7 +80,7 @@ async function fetchAndPrepareData() {
                 document.getElementById('writesPerSec').innerText = item.writes_per_second.toLocaleString('en', {maximumFractionDigits: 0}) + " writes/sec";
                 document.getElementById('latencyMeanMs').innerText = item.latency_mean_ms.toLocaleString('en', {maximumFractionDigits: 0}) + " ms";
 
-                document.getElementById('totalOps').innerText = totalReads.toLocaleString('en', {maximumFractionDigits: 0}) + " total ops";
+                document.getElementById('totalOps').innerText = totalOps.toLocaleString('en', {maximumFractionDigits: 0}) + " total ops";
                 document.getElementById('totalReads').innerText = totalReads.toLocaleString('en', {maximumFractionDigits: 0}) + " total reads";
                 document.getElementById('totalWrites').innerText = totalWrites.toLocaleString('en', {maximumFractionDigits: 0}) + " total writes";
             }
