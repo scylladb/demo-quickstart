@@ -6,7 +6,6 @@ use rand::{Rng, SeedableRng};
 use scylla::transport::session::Session;
 use scylla::IntoTypedRows;
 use std::sync::Arc;
-use std::time::Duration;
 use tracing::{debug, error};
 use uuid::Uuid;
 use crate::util::buffer::{LatLong, LatLongBuffer};
