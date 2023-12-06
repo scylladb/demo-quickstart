@@ -10,6 +10,7 @@ use structopt::StructOpt;
 use tokio::{task, try_join};
 use util::metrics;
 use web::server;
+use crate::util::buffer::{flush_buffer_to_db, LatLongBuffer};
 
 #[derive(Debug, Clone, StructOpt)]
 pub struct Opt {
@@ -19,9 +20,6 @@ pub struct Opt {
     /// write ratio
     #[structopt(default_value = "80")]
     write_ratio: u8,
-    /// operations per iteration
-    #[structopt(default_value = "50")]
-    ops_per_iter: u8,
 }
 
 #[tokio::main]
@@ -53,18 +51,27 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let metrics_task = task::spawn(metrics::worker(
         metrics_session.clone(),
-        devices_session.clone(),
     ));
+
+    let lat_long_buffer = Arc::new(LatLongBuffer::new());
     let devices_task = task::spawn(devices::simulator(
         devices_session.clone(),
+        Arc::clone(&lat_long_buffer),
         opt.read_ratio,
         opt.write_ratio,
-        opt.ops_per_iter,
     ));
-    let (metrics_result, devices_result) = try_join!(metrics_task, devices_task)?;
+
+    let flush_task = task::spawn(flush_buffer_to_db(
+        devices_session.clone(),
+        Arc::clone(&lat_long_buffer),
+    ));
+
+    // Wait for all tasks to complete
+    let (metrics_result, devices_result, flush_result) = try_join!(metrics_task, devices_task, flush_task)?;
 
     metrics_result?;
     devices_result?;
+    flush_result?;
 
     Ok(())
 }
