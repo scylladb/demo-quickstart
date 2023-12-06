@@ -3,7 +3,7 @@ let devicesData = [];
 let activeTabIndex = 0;
 const gradients = {
     opsPerSec: ['#00144B', '#00BFFF'],
-    latencyMeanMs: ['#00BFFF'],
+    latency: ['#00144B', '#00BFFF'],
 };
 window.onload = async () => {
     mdc.autoInit();
@@ -18,9 +18,9 @@ window.onload = async () => {
                 chartInstances.opsPerSecChart.resize();
                 chartInstances.opsPerSecChart.setOption(createBarChartOption(metricsData.readsPerSec, metricsData.writesPerSec, gradients.opsPerSec), true);
             }
-            if (chartInstances.latencyMeanMsChart) {
-                chartInstances.latencyMeanMsChart.resize();
-                chartInstances.latencyMeanMsChart.setOption(createLineChartOption(metricsData.latencyMeanMs, gradients.latencyMeanMs), true);
+            if (chartInstances.latencyChart) {
+                chartInstances.latencyChart.resize();
+                chartInstances.latencyChart.setOption(createLineChartOption(metricsData.latencyReadMax, metricsData.latencyWriteMax, gradients.latency), true);
             }
         }
     });
@@ -28,18 +28,18 @@ window.onload = async () => {
     chartInstances = initCharts();
     await updateCharts(chartInstances);
 
-    setInterval(() => updateCharts(chartInstances), 15000);
+    setInterval(() => updateCharts(chartInstances), 5000);
 };
 
 window.addEventListener('resize', function () {
     if (chartInstances.opsPerSecChart) chartInstances.opsPerSecChart.resize();
-    if (chartInstances.latencyMeanMsChart) chartInstances.latencyMeanMsChart.resize();
+    if (chartInstances.latencyChart) chartInstances.latencyChart.resize();
     if (chartInstances.worldGraphChart) chartInstances.worldGraphChart.resize();
 });
 
 
 let metricsData = {
-    readsPerSec: [], writesPerSec: [], latencyMeanMs: [], latencyP99Ms: []
+    readsPerSec: [], writesPerSec: [], latencyReadMax: [], latencyWriteMax: []
 };
 
 let totalReads = 0;
@@ -62,27 +62,22 @@ async function fetchAndPrepareData() {
             if (timestamp > lastTimestamp) {
                 metricsData.readsPerSec.push([timestamp, item.reads_per_second]);
                 metricsData.writesPerSec.push([timestamp, item.writes_per_second]);
-                metricsData.latencyMeanMs.push([timestamp, item.latency_mean_ms]);
+                metricsData.latencyReadMax.push([timestamp, item.latency_read_max]);
+                metricsData.latencyWriteMax.push([timestamp, item.latency_write_max]);
 
-                totalReads += item.total_reads;
-                totalWrites += item.total_writes;
-                totalOps += (item.total_reads + item.total_writes);
+                totalReads = item.reads_total;
+                totalWrites = item.writes_total;
+                totalOps = item.reads_total + item.writes_total;
 
                 if (metricsData.readsPerSec.length > 300) {
                     metricsData.readsPerSec.shift();
                     metricsData.writesPerSec.shift();
-                    metricsData.latencyMeanMs.shift();
+                    metricsData.latencyReadMax.shift();
+                    metricsData.latencyWriteMax.shift();
                 }
 
-                ops_per_second = item.reads_per_second + item.writes_per_second;
+                ops_per_second = item.ops_per_second;
                 document.getElementById('opsPerSec').innerText = ops_per_second.toLocaleString('en', {maximumFractionDigits: 0}) + " ops/sec";
-                document.getElementById('readsPerSec').innerText = item.reads_per_second.toLocaleString('en', {maximumFractionDigits: 0}) + " reads/sec";
-                document.getElementById('writesPerSec').innerText = item.writes_per_second.toLocaleString('en', {maximumFractionDigits: 0}) + " writes/sec";
-                document.getElementById('latencyMeanMs').innerText = item.latency_mean_ms.toLocaleString('en', {maximumFractionDigits: 0}) + " ms";
-
-                document.getElementById('totalOps').innerText = totalOps.toLocaleString('en', {maximumFractionDigits: 0}) + " total ops";
-                document.getElementById('totalReads').innerText = totalReads.toLocaleString('en', {maximumFractionDigits: 0}) + " total reads";
-                document.getElementById('totalWrites').innerText = totalWrites.toLocaleString('en', {maximumFractionDigits: 0}) + " total writes";
             }
         });
 
@@ -94,11 +89,11 @@ async function fetchAndPrepareData() {
 
 function initCharts() {
     const opsPerSecChart = echarts.init(document.getElementById('opsPerSecChart'));
-    const latencyMeanMsChart = echarts.init(document.getElementById('latencyMeanMsChart'));
+    const latencyChart = echarts.init(document.getElementById('latencyChart'));
     const worldGraphChart = echarts.init(document.getElementById('worldGraphChart'));
 
     return {
-        opsPerSecChart, latencyMeanMsChart, worldGraphChart
+        opsPerSecChart, latencyChart, worldGraphChart
     };
 }
 
@@ -113,8 +108,8 @@ async function updateCharts(chartInstances) {
     if (activeTabIndex === 1) {
         chartInstances.opsPerSecChart.setOption(createBarChartOption(metricsData.readsPerSec, metricsData.writesPerSec, gradients.opsPerSec), true);
         chartInstances.opsPerSecChart.resize();
-        chartInstances.latencyMeanMsChart.setOption(createLineChartOption(metricsData.latencyMeanMs, gradients.latencyMeanMs), true);
-        chartInstances.latencyMeanMsChart.resize();
+        chartInstances.latencyChart.setOption(createLineChartOption(metricsData.latencyReadMax, metricsData.latencyWriteMax, gradients.latency), true);
+        chartInstances.latencyChart.resize();
     }
 }
 
@@ -129,7 +124,6 @@ function createWorldOption() {
             map: 'world',
             silent: true,
             environment: '#5c677d',
-
             postEffect: {
                 enable: false
             },
@@ -154,7 +148,7 @@ function createWorldOption() {
                 coordinateSystem: 'geo3D',
                 effect: {
                     show: true,
-                    trailWidth: 2,
+                    trailWidth: 1.5,
                     trailOpacity: 0.5,
                     trailLength: 0.2,
                     constantSpeed: 5
@@ -181,9 +175,12 @@ function createBarChartOption(readsData, writesData, gradients) {
             data: combinedData.timestamps
         },
         yAxis: { type: 'value' },
+        legend: {
+            data: ['Reads/sec', 'Writes/sec']
+        },
         series: [
             {
-                name: 'Reads',
+                name: 'Reads/sec',
                 data: combinedData.reads,
                 type: 'bar',
                 stack: 'total',
@@ -192,7 +189,7 @@ function createBarChartOption(readsData, writesData, gradients) {
                 }
             },
             {
-                name: 'Writes',
+                name: 'Writes/sec',
                 data: combinedData.writes,
                 type: 'bar',
                 stack: 'total',
@@ -227,7 +224,7 @@ function formatTimestamp(timestamp) {
 }
 
 
-function createLineChartOption(data, gradientColors) {
+function createLineChartOption(readsData, writesData, gradients) {
     return {
         tooltip: { trigger: 'axis' },
         xAxis: {
@@ -235,18 +232,35 @@ function createLineChartOption(data, gradientColors) {
             splitLine: { show: false }
         },
         yAxis: { type: 'value' },
+        legend: {
+            data: ['P99 Read Latency (ms)', 'P99 Write Latency (ms)']
+        },
         series: [{
-            name: 'ms',
-            data: data,
+            name: 'P99 Read Latency (ms)',
+            data: readsData,
             type: 'line',
             step: 'start',
             symbol: 'none',
             lineStyle: {
                 opacity: 1,
-                color: gradientColors[0]
+                color: gradients[0]
             },
             itemStyle: {
-                color: gradientColors[0]
+                color: gradients[0]
+            }
+        },
+        {
+            name: 'P99 Write Latency (ms)',
+            data: writesData,
+            type: 'line',
+            step: 'start',
+            symbol: 'none',
+            lineStyle: {
+                opacity: 1,
+                color: gradients[1]
+            },
+            itemStyle: {
+                color: gradients[1]
             }
         }]
     };

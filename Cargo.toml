@@ -36,3 +36,6 @@ uuid = { version = "1.4.1", features = ["serde"] }
 rand = "0.8"
 fake = { version = "2.6.1", features = ["geo"] }
 csv = "1.1"
+reqwest = "0.11.22"
+regex = "1.10.2"
+geohash = "0.13.0"

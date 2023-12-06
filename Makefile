@@ -24,6 +24,9 @@ down:
 run:
 	cargo run -p scylladb-quick-demo-rs 20 80
 
+kill:
+	ps aux | grep "target/debug/scylladb-quick-demo-[rs]" | awk '{print $$2}' | xargs kill -9
+
 reset:
 	docker-compose down --remove-orphans scylla
 	docker-compose up --detach --force-recreate scylla

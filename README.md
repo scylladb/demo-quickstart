@@ -13,9 +13,10 @@ Wait 60s or so for the node to start. Tip: you can view ScyllaDB logs with:
 Next, run the demonstration application which will simulate artificial load from an Internet of Things app, 
 measuring data from millions of unique devices:
 
-    docker run --rm --link node1:node1 \
+    docker run -d --rm --link node1:node1 \
         --publish 8000:8000 \
         --env DATABASE_URL=node1:9042 \
+        --env METRICS_URL=node1:9180 \
         --name demo scylladb/demo-quickstart
 
 The demo application will now be running on port 8000. You can access the application by visiting http://localhost:8000/index.html.
