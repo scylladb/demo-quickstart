@@ -20,7 +20,7 @@ pub const DDL: &str = "
         lat         double,
         lng         double,
         ipv4        text,
-        PRIMARY KEY ((geo_hash), device_id)
+        PRIMARY KEY (geo_hash)
     );
     USE demo;
     DROP TABLE IF EXISTS unique_lat_lng;
