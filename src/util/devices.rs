@@ -22,7 +22,6 @@ pub async fn simulator(
     let mut rng = StdRng::from_entropy();
 
     loop {
-        let uuid = Uuid::new_v4();
         let rand_num: u8 = rng.gen_range(0..total_ratio);
 
         let idx = rng.gen_range(0..=coords::LATLONGS.len() - 1);
@@ -32,16 +31,16 @@ pub async fn simulator(
             // Simulate a read operation
             match session
                 .query(
-                    "SELECT geo_hash, device_id FROM devices WHERE geo_hash = ? AND device_id = ? LIMIT 1",
-                    (geo_hash.clone(), uuid),
+                    "SELECT geo_hash, device_id FROM demo.devices WHERE geo_hash = ? LIMIT 1",
+                    (&geo_hash.clone(),)
                 )
                 .await
             {
                 Ok(response) => {
                     let rows = response.rows.unwrap_or_default();
-                    for row in rows.into_typed::<(i64,)>() {
+                    for row in rows.into_typed::<(String, Uuid)>() {
                         match row {
-                            Ok((sensor_data,)) => debug!("Sensor data: {}", sensor_data),
+                            Ok((geo_hash, device_id)) => debug!("Geo Hash: {} for device ID: {}", geo_hash, device_id),
                             Err(e) => error!("Failed to parse row: {}", e),
                         }
                     }
@@ -52,12 +51,12 @@ pub async fn simulator(
             // Simulate a write operation
             let ipv4: String = IPv4(EN).fake();
 
-            let new_device_id = Uuid::new_v4();
+            let device_id = Uuid::new_v4();
 
             match session
                 .query(
                     "INSERT INTO devices (device_id, geo_hash, lat, lng, ipv4) VALUES (?, ?, ?, ?, ?)",
-                    (new_device_id, geo_hash.clone(), lat_long.0, lat_long.1, ipv4)
+                    (device_id, geo_hash.clone(), lat_long.0, lat_long.1, ipv4)
                 )
                 .await
             {
