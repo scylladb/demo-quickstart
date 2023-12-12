@@ -2,9 +2,12 @@ use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use std::sync::{Arc, Mutex};
 use scylla::Session;
+use scylla::prepared_statement::PreparedStatement;
 use std::time::Duration;
 use tracing::{error};
 use anyhow::Error;
+
+const INSERT_LATLONG: &str = "INSERT INTO unique_lat_lng (lat, lng) VALUES (?, ?)";
 
 #[derive(Clone, Debug)]
 pub struct LatLong {
@@ -55,6 +58,10 @@ pub async fn flush_buffer_to_db(
 ) -> Result<(), Error> {
     let mut interval = tokio::time::interval(Duration::from_secs(3));
 
+    let insert_statement: PreparedStatement = session
+        .prepare(INSERT_LATLONG)
+        .await?;
+
     loop {
         interval.tick().await;
         let unique_pairs = lat_long_buffer.flush();
@@ -62,9 +69,9 @@ pub async fn flush_buffer_to_db(
         for lat_long in unique_pairs {
             // Perform database insert for each unique lat-long pair
             if let Err(e) = session
-                .query(
-                    "INSERT INTO unique_lat_lng (lat, lng) VALUES (?, ?)",
-                    (lat_long.lat, lat_long.lng),
+                .execute(
+                    &insert_statement,
+                    (lat_long.lat, lat_long.lng)
                 )
                 .await
             {
