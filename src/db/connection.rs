@@ -1,6 +1,8 @@
 use crate::db::ddl::DDL;
 use anyhow::{anyhow, Result};
 use scylla::{Session, SessionBuilder};
+use scylla::load_balancing::DefaultPolicy;
+use scylla::transport::ExecutionProfile;
 use std::env;
 use std::time::Duration;
 use tokio_retry::{strategy::ExponentialBackoff, Retry};
@@ -15,8 +17,22 @@ pub async fn builder(migrate: bool) -> Result<Session> {
     let strategy = ExponentialBackoff::from_millis(500).max_delay(Duration::from_secs(20));
 
     let session = Retry::spawn(strategy, || async {
+        let default_policy = DefaultPolicy::builder()
+            .prefer_datacenter("datacenter1".to_string())
+            .token_aware(true)
+            .permit_dc_failover(false)
+            .build();
+
+
+        let profile = ExecutionProfile::builder()
+            .load_balancing_policy(default_policy)
+            .build();
+
+        let handle = profile.into_handle();
+
         SessionBuilder::new()
             .known_node(&database_url)
+            .default_execution_profile_handle(handle)
             .build()
             .await
     })
