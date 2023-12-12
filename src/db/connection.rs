@@ -6,8 +6,7 @@ use scylla::transport::ExecutionProfile;
 use std::env;
 use std::time::Duration;
 use tokio_retry::{strategy::ExponentialBackoff, Retry};
-
-use tracing::info;
+use tracing::{info, debug};
 
 pub async fn builder(migrate: bool) -> Result<Session> {
     let database_url = env::var("DATABASE_URL")?;
@@ -44,7 +43,7 @@ pub async fn builder(migrate: bool) -> Result<Session> {
         for q in schema_query.split(';') {
             let query = q.to_owned() + ";";
             if !query.starts_with("--") && query.len() > 1 {
-                info!("Running Migration {}", query);
+                debug!("Running Migration {}", query);
                 session
                     .query(query, &[])
                     .await
