@@ -1,11 +1,21 @@
+use tracing_subscriber::{fmt, EnvFilter};
+
 pub fn init() {
-    tracing_subscriber::fmt()
+    fmt()
         .with_env_filter(
-            tracing_subscriber::filter::EnvFilter::builder()
+            EnvFilter::builder()
                 .with_default_directive(tracing_subscriber::filter::LevelFilter::INFO.into())
                 .from_env_lossy(),
         )
         .with_ansi(cfg!(debug_assertions))
-        .json()
-        .init()
+        .pretty()
+        .event_format(fmt::format()
+            .with_level(true)
+            .with_target(false)
+            .with_thread_ids(false)
+            .with_thread_names(false)
+            .with_line_number(false)
+            .with_file(false)
+            .compact())
+        .init();
 }

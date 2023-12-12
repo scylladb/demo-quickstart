@@ -6,10 +6,11 @@ use crate::db::connection;
 use crate::util::devices;
 use anyhow::anyhow;
 use std::sync::Arc;
+use std::process;
 use futures::stream::FuturesUnordered;
 use futures::TryStreamExt;
 use structopt::StructOpt;
-use tokio::task;
+use tokio::{signal, task};
 use util::metrics;
 use web::server;
 use crate::util::buffer::{flush_buffer_to_db, LatLongBuffer};
@@ -45,6 +46,11 @@ async fn main() -> Result<(), anyhow::Error> {
             .expect("Failed to connect to database"),
     );
 
+    let ctrl_c_handler = tokio::spawn(async {
+        signal::ctrl_c().await.expect("Failed to listen for Ctrl-C");
+        process::exit(0);
+    });
+
     let web = server::init(db_session.clone(), opt.clone()).await;
     tokio::spawn(async { web.launch().await.unwrap() });
 
@@ -73,6 +79,10 @@ async fn main() -> Result<(), anyhow::Error> {
     flush_result?;
 
     devices_result.into_iter().collect::<Result<Vec<_>, _>>()?;
+
+    tokio::select! {
+        _ = ctrl_c_handler => (),
+    }
 
     Ok(())
 }
