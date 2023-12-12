@@ -3,6 +3,7 @@ use fake::locales::EN;
 use fake::Fake;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
+use scylla::prepared_statement::PreparedStatement;
 use scylla::transport::session::Session;
 use scylla::IntoTypedRows;
 use std::sync::Arc;
@@ -11,6 +12,9 @@ use uuid::Uuid;
 use crate::util::buffer::{LatLong, LatLongBuffer};
 use crate::util::coords;
 use crate::util::geo::get_geo_hash;
+
+const READ_DEVICE: &str = "SELECT geo_hash, device_id FROM demo.devices WHERE geo_hash = ? LIMIT 1";
+const INSERT_DEVICE: &str = "INSERT INTO devices (device_id, geo_hash, lat, lng, ipv4) VALUES (?, ?, ?, ?, ?)";
 
 pub async fn simulator(
     session: Arc<Session>,
@@ -21,6 +25,14 @@ pub async fn simulator(
     let total_ratio = read_ratio + write_ratio;
     let mut rng = StdRng::from_entropy();
 
+    let read_device: PreparedStatement = session.prepare(
+        READ_DEVICE)
+        .await?;
+
+    let insert_device: PreparedStatement = session.prepare(
+        INSERT_DEVICE)
+        .await?;
+
     loop {
         let rand_num: u8 = rng.gen_range(0..total_ratio);
 
@@ -30,8 +42,7 @@ pub async fn simulator(
         if rand_num < read_ratio {
             // Simulate a read operation
             match session
-                .query(
-                    "SELECT geo_hash, device_id FROM demo.devices WHERE geo_hash = ? LIMIT 1",
+                .execute(&read_device,
                     (&geo_hash.clone(),)
                 )
                 .await
@@ -53,10 +64,8 @@ pub async fn simulator(
 
             let device_id = Uuid::new_v4();
 
-            match session
-                .query(
-                    "INSERT INTO devices (device_id, geo_hash, lat, lng, ipv4) VALUES (?, ?, ?, ?, ?)",
-                    (device_id, geo_hash.clone(), lat_long.0, lat_long.1, ipv4)
+            match session.execute(&insert_device,
+                (device_id, geo_hash.clone(), lat_long.0, lat_long.1, ipv4)
                 )
                 .await
             {
