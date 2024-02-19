@@ -51,7 +51,6 @@
         <div class="mdc-layout-grid__inner">
             <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
                 <div class="mdc-card">
-                    <div id="worldGraphChart" class="mdc-card__media mdc-card__media--16-9 triple-height-chart"></div>
                     <div class="mdc-card__content">
                         <h2 id="worldGraphChartTitle" class="mdc-typography--headline6"></h2>
                         <h3 class="mdc-typography--headline6">Live DDoS Map</h3>
@@ -67,9 +66,14 @@
                             predictable low latency achievable with just one node. Enjoy linear performance at scale as
                             you go beyond this simple demo and run ScyllaDB with your own application.
                         </p>
+                        <p class="mdc-typography--body2">
+                            <a href="https://github.com/scylladb/demo-quickstart"><img alt="Source Code" src="https://img.shields.io/badge/GitHub-source-00BFFF?logo=github"></a>
+                            <a href="https://github.com/scylladb/demo-quickstart/blob/main/src/db/ddl.rs"><img alt="Schema" src="https://img.shields.io/badge/GitHub-schema-00BFFF?logo=github&style=flat"></a>
+                        </p>
                         <span id="opsPerSec" class="mdc-typography--headline6"></span>
                         <span id="totalOps" class="mdc-typography--body2"></span>
                     </div>
+                    <div id="worldGraphChart" class="mdc-card__media mdc-card__media--16-9 triple-height-chart"></div>
                 </div>
             </div>
         </div>
