@@ -5,6 +5,7 @@ use std::time::Duration;
 
 use anyhow::{anyhow, Result};
 use regex::Regex;
+use scylla::frame::value::CqlTimestamp;
 use scylla::Session;
 use tracing::{debug, error};
 
@@ -22,7 +23,7 @@ pub async fn writer(
 
     let metric = models::Metric {
         node_id: "ABCD".parse().unwrap(),
-        timestamp: chrono::Utc::now().timestamp_millis(),
+        timestamp: CqlTimestamp(chrono::Utc::now().timestamp_millis()),
         reads_total: reads as i64,
         writes_total: writes as i64,
         latency_read_max: *latencies.get("read").unwrap_or(&0) as i64,
