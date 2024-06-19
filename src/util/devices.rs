@@ -24,7 +24,7 @@ pub async fn simulator(
 ) -> Result<(), anyhow::Error> {
     let total_ratio = read_ratio + write_ratio;
     let mut rng = StdRng::from_entropy();
-    let uniques = 2048;
+    let uniques = 3200;
 
     let read_device: PreparedStatement = session.prepare(
         READ_DEVICE)
