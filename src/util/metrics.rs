@@ -1,13 +1,14 @@
+use std::collections::HashMap;
 use std::env;
-use crate::db::models;
-use anyhow::{Result, anyhow};
-use scylla::Session;
 use std::sync::Arc;
 use std::time::Duration;
-use tracing::{debug, error};
-use reqwest;
+
+use anyhow::{anyhow, Result};
 use regex::Regex;
-use std::collections::HashMap;
+use scylla::Session;
+use tracing::{debug, error};
+
+use crate::db::models;
 
 pub async fn writer(
     metrics_session: Arc<Session>,
