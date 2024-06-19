@@ -20,13 +20,13 @@ mod web;
 #[derive(Debug, Clone, StructOpt)]
 pub struct Opt {
     /// read ratio
-    #[structopt(default_value = "20")]
+    #[structopt(default_value = "80")]
     read_ratio: u8,
     /// write ratio
-    #[structopt(default_value = "80")]
+    #[structopt(default_value = "20")]
     write_ratio: u8,
     /// simulators
-    #[structopt(default_value = "50")]
+    #[structopt(default_value = "30")]
     simulators: u8,
 }
 

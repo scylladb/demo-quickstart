@@ -22,7 +22,7 @@ down:
 	docker compose down --remove-orphans
 
 run:
-	cargo run -p scylladb-quick-demo-rs 80 20 20
+	cargo run -p scylladb-quick-demo-rs 100 0 30
 
 kill:
 	ps aux | grep "target/debug/scylladb-quick-demo-[rs]" | awk '{print $$2}' | xargs kill -9
