@@ -34,7 +34,7 @@ pub async fn metrics(
         .unwrap_or_default();
 
     let metrics: Vec<Metric> = rows.into_typed().filter_map(Result::ok).collect();
-    
+
     let mut rate_metrics: Vec<RateMetric> = Vec::new();
 
     for windows in metrics.windows(2) {
@@ -74,7 +74,7 @@ pub async fn devices(
     session: &State<Arc<Session>>,
 ) -> Result<Json<Vec<Device>>, status::Custom<String>> {
     let cql_query =
-        Query::new("SELECT * FROM devices LIMIT 1024;");
+        Query::new("SELECT * FROM devices LIMIT 1280;");
 
     let rows = session
         .query(cql_query, ())
