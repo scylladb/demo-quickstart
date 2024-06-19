@@ -10,23 +10,23 @@ list:
 
 build:
 	cargo build
-	docker-compose build
+	docker compose build
 
 push:
-	docker-compose push
+	docker compose push
 
 up:
-	docker-compose up --detach --force-recreate scylla demo
+	docker compose up --detach --force-recreate scylla demo
 
 down:
-	docker-compose down --remove-orphans
+	docker compose down --remove-orphans
 
 run:
-	cargo run -p scylladb-quick-demo-rs 20 80
+	cargo run -p scylladb-quick-demo-rs 80 20 1
 
 kill:
 	ps aux | grep "target/debug/scylladb-quick-demo-[rs]" | awk '{print $$2}' | xargs kill -9
 
 reset:
-	docker-compose down --remove-orphans scylla
-	docker-compose up --detach --force-recreate scylla
+	docker compose down --remove-orphans scylla
+	docker compose up --detach --force-recreate scylla
