@@ -1,14 +1,16 @@
-use crate::db::models::*;
+use std::path::Path;
+use std::sync::Arc;
+
+use rocket::{get, State};
 use rocket::fs::NamedFile;
 use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::Json;
-use rocket::serde::Serialize;
-use rocket::{get, State};
+use scylla::{IntoTypedRows, Session};
+use scylla::frame::value::CqlTimestamp;
 use scylla::query::Query;
-use scylla::{FromRow, IntoTypedRows, Session};
-use std::path::Path;
-use std::sync::Arc;
+
+use crate::db::models::*;
 
 #[get("/")]
 pub async fn index() -> Option<NamedFile> {
@@ -25,7 +27,7 @@ pub async fn metrics(
     let cql_query = Query::new("SELECT * FROM metrics WHERE node_id = ? AND timestamp > ? AND timestamp <= ?;");
 
     let rows = session
-        .query(cql_query, ("ABCD", timestamp_minute_ago, timestamp_now))
+        .query(cql_query, ("ABCD", &CqlTimestamp(timestamp_minute_ago), &CqlTimestamp(timestamp_now)))
         .await
         .map_err(|err| status::Custom(Status::InternalServerError, err.to_string()))?
         .rows
@@ -41,17 +43,17 @@ pub async fn metrics(
                 continue;
             }
 
-            let reads_per_second = ((curr.reads_total - prev.reads_total) as f64
-                / ((curr.timestamp - prev.timestamp) as f64 / 1000.0)).round();
+            let reads_per_second: f64 = ((curr.reads_total - prev.reads_total) as f64
+                / ((curr.timestamp.0 - prev.timestamp.0) as f64 / 1000.0)).round();
 
             let writes_per_second = ((curr.writes_total - prev.writes_total) as f64
-                / ((curr.timestamp - prev.timestamp) as f64 / 1000.0)).round();
+                / ((curr.timestamp.0 - prev.timestamp.0) as f64 / 1000.0)).round();
 
             let ops_per_second = reads_per_second + writes_per_second;
 
             let rate_metric = RateMetric {
                 node_id: curr.node_id.clone(),
-                timestamp: curr.timestamp,
+                timestamp: curr.timestamp.0,
                 reads_per_second,
                 writes_per_second,
                 ops_per_second,
@@ -67,25 +69,12 @@ pub async fn metrics(
     Ok(Json(rate_metrics))
 }
 
-#[derive(Serialize)]
-pub struct RateMetric {
-    pub node_id: String,
-    pub timestamp: i64,
-    pub reads_per_second: f64,
-    pub writes_per_second: f64,
-    pub ops_per_second: f64,
-    pub reads_total: i64,
-    pub writes_total: i64,
-    pub latency_read_max: f64,
-    pub latency_write_max: f64,
-}
-
 #[get("/devices", rank = 2)]
 pub async fn devices(
     session: &State<Arc<Session>>,
 ) -> Result<Json<Vec<Device>>, status::Custom<String>> {
     let cql_query =
-        Query::new("SELECT * FROM unique_lat_lng;");
+        Query::new("SELECT * FROM devices LIMIT 1280;");
 
     let rows = session
         .query(cql_query, ())
@@ -97,10 +86,4 @@ pub async fn devices(
     let devices: Vec<Device> = rows.into_typed().filter_map(Result::ok).collect();
 
     Ok(Json(devices))
-}
-
-#[derive(Clone, Debug, FromRow, Serialize)]
-pub struct Device {
-    pub lat: f64,
-    pub lng: f64,
 }

@@ -1,30 +1,32 @@
-mod db;
-mod util;
-mod web;
-
-use crate::db::connection;
-use crate::util::devices;
-use anyhow::anyhow;
-use std::sync::Arc;
 use std::process;
+use std::sync::Arc;
+
+use anyhow::anyhow;
 use futures::stream::FuturesUnordered;
 use futures::TryStreamExt;
 use structopt::StructOpt;
 use tokio::{signal, task};
+
 use util::metrics;
 use web::server;
-use crate::util::buffer::{flush_buffer_to_db, LatLongBuffer};
+
+use crate::db::connection;
+use crate::util::devices;
+
+mod db;
+mod util;
+mod web;
 
 #[derive(Debug, Clone, StructOpt)]
 pub struct Opt {
     /// read ratio
-    #[structopt(default_value = "20")]
+    #[structopt(default_value = "80")]
     read_ratio: u8,
     /// write ratio
-    #[structopt(default_value = "80")]
+    #[structopt(default_value = "20")]
     write_ratio: u8,
     /// simulators
-    #[structopt(default_value = "50")]
+    #[structopt(default_value = "30")]
     simulators: u8,
 }
 
@@ -58,25 +60,17 @@ async fn main() -> Result<(), anyhow::Error> {
         db_session.clone(),
     ));
 
-    let lat_long_buffer = Arc::new(LatLongBuffer::new());
-    let flush_task = task::spawn(flush_buffer_to_db(
-        db_session.clone(),
-        Arc::clone(&lat_long_buffer),
-    ));
-
     let devices_tasks: FuturesUnordered<_> = (0..opt.simulators).map(|_| {
         task::spawn(devices::simulator(
             db_session.clone(),
-            Arc::clone(&lat_long_buffer),
             opt.read_ratio,
             opt.write_ratio,
         ))
     }).collect();
     let devices_result = devices_tasks.try_collect::<Vec<_>>().await?;
 
-    let (metrics_result, flush_result) = tokio::try_join!(metrics_task, flush_task)?;
+    let (metrics_result, ) = tokio::try_join!(metrics_task)?;
     metrics_result?;
-    flush_result?;
 
     devices_result.into_iter().collect::<Result<Vec<_>, _>>()?;
 

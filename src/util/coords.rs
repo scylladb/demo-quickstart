@@ -1,4 +1,4 @@
-pub(crate) const LATLONGS: [(f64, f64); 34313] = [
+pub(crate) const LATLONGS: &[(f64, f64); 34313] = &[
     (
         -75.440806,
         40.652083
