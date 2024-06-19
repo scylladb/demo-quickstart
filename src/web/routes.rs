@@ -1,14 +1,15 @@
-use crate::db::models::*;
+use std::path::Path;
+use std::sync::Arc;
+
+use rocket::{get, State};
 use rocket::fs::NamedFile;
 use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::Json;
-use rocket::serde::Serialize;
-use rocket::{get, State};
+use scylla::{IntoTypedRows, Session};
 use scylla::query::Query;
-use scylla::{FromRow, IntoTypedRows, Session};
-use std::path::Path;
-use std::sync::Arc;
+
+use crate::db::models::*;
 
 #[get("/")]
 pub async fn index() -> Option<NamedFile> {
@@ -67,25 +68,12 @@ pub async fn metrics(
     Ok(Json(rate_metrics))
 }
 
-#[derive(Serialize)]
-pub struct RateMetric {
-    pub node_id: String,
-    pub timestamp: i64,
-    pub reads_per_second: f64,
-    pub writes_per_second: f64,
-    pub ops_per_second: f64,
-    pub reads_total: i64,
-    pub writes_total: i64,
-    pub latency_read_max: f64,
-    pub latency_write_max: f64,
-}
-
 #[get("/devices", rank = 2)]
 pub async fn devices(
     session: &State<Arc<Session>>,
 ) -> Result<Json<Vec<Device>>, status::Custom<String>> {
     let cql_query =
-        Query::new("SELECT * FROM unique_lat_lng;");
+        Query::new("SELECT * FROM devices LIMIT 1024;");
 
     let rows = session
         .query(cql_query, ())
@@ -97,10 +85,4 @@ pub async fn devices(
     let devices: Vec<Device> = rows.into_typed().filter_map(Result::ok).collect();
 
     Ok(Json(devices))
-}
-
-#[derive(Clone, Debug, FromRow, Serialize)]
-pub struct Device {
-    pub lat: f64,
-    pub lng: f64,
 }
