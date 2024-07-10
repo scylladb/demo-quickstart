@@ -27,7 +27,7 @@ pub struct Opt {
     write_ratio: u8,
     /// simulators
     #[structopt(default_value = "30")]
-    simulators: u8,
+    simulators: u16,
 }
 
 #[tokio::main]
