@@ -35,8 +35,10 @@ pub async fn builder(migrate: bool) -> Result<Session> {
     let strategy = ExponentialBackoff::from_millis(500).max_delay(Duration::from_secs(20));
 
     let session = Retry::spawn(strategy, || async {
+        let datacenter = env::var("DATACENTER").unwrap_or("datacenter1".to_string());
+
         let default_policy = DefaultPolicy::builder()
-            .prefer_datacenter("datacenter1".to_string())
+            .prefer_datacenter(datacenter)
             .token_aware(true)
             .permit_dc_failover(false)
             .build();
