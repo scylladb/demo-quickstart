@@ -1,17 +1,36 @@
-use crate::db::ddl::DDL;
+use std::env;
+use std::time::Duration;
+
 use anyhow::{anyhow, Result};
 use scylla::{Session, SessionBuilder};
 use scylla::load_balancing::DefaultPolicy;
+use scylla::statement::Consistency;
 use scylla::transport::ExecutionProfile;
-use std::env;
-use std::time::Duration;
-use tokio_retry::{strategy::ExponentialBackoff, Retry};
-use tracing::{info, debug};
+use tokio_retry::{Retry, strategy::ExponentialBackoff};
+use tracing::{debug, info};
+
+use crate::db::ddl::DDL;
 
 pub async fn builder(migrate: bool) -> Result<Session> {
     let database_url = env::var("DATABASE_URL")?;
 
-    info!("Connecting to ScyllaDB at {}", database_url);
+    let consistency = match env::var("CL")
+        .unwrap_or_default()
+        .to_uppercase().as_str() {
+        "ONE" => Consistency::One,
+        "TWO" => Consistency::Two,
+        "THREE" => Consistency::Three,
+        "QUORUM" => Consistency::Quorum,
+        "ALL" => Consistency::All,
+        "LOCAL_QUORUM" => Consistency::LocalQuorum,
+        "EACH_QUORUM" => Consistency::EachQuorum,
+        "SERIAL" => Consistency::Serial,
+        "LOCAL_SERIAL" => Consistency::LocalSerial,
+        "LOCAL_ONE" => Consistency::LocalOne,
+        _ => Consistency::LocalQuorum,
+    };
+
+    info!("Connecting to ScyllaDB at: {}  CL: {}", database_url, consistency);
 
     let strategy = ExponentialBackoff::from_millis(500).max_delay(Duration::from_secs(20));
 
@@ -25,6 +44,7 @@ pub async fn builder(migrate: bool) -> Result<Session> {
 
         let profile = ExecutionProfile::builder()
             .load_balancing_policy(default_policy)
+            .consistency(consistency)
             .build();
 
         let handle = profile.into_handle();
@@ -35,8 +55,8 @@ pub async fn builder(migrate: bool) -> Result<Session> {
             .build()
             .await
     })
-    .await
-    .map_err(|e| anyhow!("Error connecting to the database: {}", e))?;
+        .await
+        .map_err(|e| anyhow!("Error connecting to the database: {}", e))?;
 
     if migrate {
         let schema_query = DDL.trim().replace('\n', " ");
