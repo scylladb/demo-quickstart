@@ -50,7 +50,7 @@ Default is `datacenter1`.
 
 ## Replication Factor
 
-To adjust the replication factor you can do so by setting the `REPLICATION_FACTOR` environment variable.
+To adjust the replication factor you can do so by setting the `RF` environment variable.
 
     docker run -d --rm --link node1:node1 \
         --publish 8000:8000 \
@@ -63,7 +63,7 @@ Default is `1` which is not recommended for production, but is fine for a single
 
 ## Consistency Level
 
-To adjust consistency level you can do so by setting the `CONSISTENCY` environment variable.
+To adjust consistency level you can do so by setting the `CL` environment variable.
 
     docker run -d --rm --link node1:node1 \
         --publish 8000:8000 \
