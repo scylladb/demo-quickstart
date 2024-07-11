@@ -48,6 +48,19 @@ To adjust the preferred datacenter you can do so by setting the `DATACENTER` env
 
 Default is `datacenter1`.
 
+## Replication Factor
+
+To adjust the replication factor you can do so by setting the `REPLICATION_FACTOR` environment variable.
+
+    docker run -d --rm --link node1:node1 \
+        --publish 8000:8000 \
+        --env DATABASE_URL=node1:9042 \
+        --env METRICS_URL=node1:9180 \
+        --env RF=2 \
+        --name demo scylladb/demo-quickstart
+
+Default is `1` which is not recommended for production, but is fine for a single node demo.
+
 ## Consistency Level
 
 To adjust consistency level you can do so by setting the `CONSISTENCY` environment variable.

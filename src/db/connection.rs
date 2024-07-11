@@ -61,7 +61,10 @@ pub async fn builder(migrate: bool) -> Result<Session> {
         .map_err(|e| anyhow!("Error connecting to the database: {}", e))?;
 
     if migrate {
-        let schema_query = DDL.trim().replace('\n', " ");
+        let replication_factor = env::var("RF").unwrap_or("1".to_string());
+        let schema_query = DDL.trim()
+            .replace('\n', " ")
+            .replace("<RF>", &replication_factor);
         for q in schema_query.split(';') {
             let query = q.to_owned() + ";";
             if !query.starts_with("--") && query.len() > 1 {

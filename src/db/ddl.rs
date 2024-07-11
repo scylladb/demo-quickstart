@@ -1,5 +1,5 @@
 pub const DDL: &str = "
-    CREATE KEYSPACE IF NOT EXISTS demo WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'replication_factor' : 1 };
+    CREATE KEYSPACE IF NOT EXISTS demo WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'replication_factor' : <RF> };
     USE demo;
     DROP TABLE IF EXISTS metrics;
     CREATE TABLE IF NOT EXISTS metrics
