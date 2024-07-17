@@ -35,6 +35,19 @@ Once you're happy with the demo, you can stop all the containers with:
 
 # Options
 
+## Migrate
+
+To skip DDL migration you can do so by setting the `MIGRATE` environment variable.
+
+    docker run -d --rm --link node1:node1 \
+        --publish 8000:8000 \
+        --env DATABASE_URL=node1:9042 \
+        --env METRICS_URL=node1:9180 \
+        --env MIGRATE=false \
+        --name demo scylladb/demo-quickstart
+
+Default is `true`.
+
 ## Datacenter
 
 To adjust the preferred datacenter you can do so by setting the `DATACENTER` environment variable.

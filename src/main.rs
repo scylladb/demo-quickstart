@@ -1,4 +1,4 @@
-use std::process;
+use std::{env, process};
 use std::sync::Arc;
 
 use anyhow::anyhow;
@@ -42,8 +42,16 @@ async fn main() -> Result<(), anyhow::Error> {
         ));
     }
 
+    let migrate = match env::var("MIGRATE")
+        .unwrap_or_default()
+        .to_uppercase().as_str() {
+        "TRUE" => true,
+        "FALSE" => false,
+        _ => true,
+    };
+
     let db_session = Arc::new(
-        connection::builder(true)
+        connection::builder(migrate)
             .await
             .expect("Failed to connect to database"),
     );
