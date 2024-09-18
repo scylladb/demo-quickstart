@@ -13,6 +13,7 @@ use crate::db::ddl::DDL;
 
 pub async fn builder(migrate: bool) -> Result<Session> {
     let database_url = env::var("DATABASE_URL")?;
+    let hostnames: Vec<String> = database_url.split(',').map(String::from).collect();
 
     let consistency = match env::var("CL")
         .unwrap_or_default()
@@ -52,7 +53,7 @@ pub async fn builder(migrate: bool) -> Result<Session> {
         let handle = profile.into_handle();
 
         SessionBuilder::new()
-            .known_node(&database_url)
+            .known_nodes(&hostnames)
             .default_execution_profile_handle(handle)
             .build()
             .await
