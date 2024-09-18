@@ -111,3 +111,27 @@ You can adjust the load profile and concurrency by setting args:
     --name demo scylladb/demo-quickstart sh -c "/app/scylladb-quick-demo-rs 90 10 5"
 
 The arguments are `% READS`, `% WRITES`, `SESSIONS`. Default is `80 20 30`. Ratio sum must be 100.
+
+## Multi Node Environment
+
+You can also run this demo in a multi-node environment. 
+Instead of creating a linked default network to node1 and publishing port 9042, 
+we will instead create a bridge network and use the `--network` flag to connect the containers.
+
+    docker network create --driver bridge scylla
+
+Next start your multi node cluster:
+
+    docker run -it --rm -d --name node1 --network scylla scylladb/scylla:6.1.1 --smp 1 --memory 1G
+    docker run -it --rm -d --name node2 --network scylla scylladb/scylla:6.1.1 --smp 1 --memory 1G --seeds node1
+    docker run -it --rm -d --name node3 --network scylla scylladb/scylla:6.1.1 --smp 1 --memory 1G --seeds node1
+
+Now run the demo application:
+
+    docker run -d --rm --network scylla \
+        --publish 8000:8000 \
+        --env DATABASE_URL=node1:9042,node2:9042,node3:9042 \
+        --env METRICS_URL=node1:9180 \
+        --name demo scylladb/demo-quickstart
+
+This will start the demo application and connect to the multi-node cluster on the `scylla` network.
